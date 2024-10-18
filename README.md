@@ -1,6 +1,6 @@
 # Visio AI
 
-![Visio AI Logo](Visio_AI\images\homepage_img.png)
+![Visio AI Logo](Visio_AI/images/homepage_img.png)
 
 **Visio AI** is an all-in-one machine learning and data analysis application designed to provide seamless dataset uploading, data visualization, and model prediction capabilities. It is built using Python, Streamlit, and scikit-learn, making it highly scalable and user-friendly for developers and analysts alike.
 
