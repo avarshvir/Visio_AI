@@ -66,26 +66,26 @@ def home():
         if st.button("🔍 Train Your Model"):
             if st.session_state.updated_df is not None:  # Ensure updated_df is initialized
             # Get the target variable
-                target_variable = st.text_input("Enter your target variable:")
-                if target_variable:  # Check if target variable is provided
-                    if target_variable not in st.session_state.updated_df.columns:
-                        st.error(f"Target variable '{target_variable}' not found in the dataset.")
-                    else:
-                        train_size = st.slider("Select Train Size (as a fraction)", min_value=0.1, max_value=1.0, value=0.8, step=0.05)
-                        random_state = st.number_input("Enter Random State", value=0)
+                target_variable = st.selectbox("Select the target variable:", st.session_state.updated_df.columns)
 
-                    # Call the function to train the model with the specified parameters
-                        model, mse, r2 = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)  
-                        st.success("✅ Model trained successfully!")
-                        st.write(f"Mean Squared Error: {mse:.2f}")
-                        st.write(f"R² Score: {r2:.2f}")
+                if target_variable:  # Check if target variable is provided
+                    train_size = st.slider("Select Train Size (fraction of data for training)", min_value=0.1, max_value=0.9, value=0.8)
+                    random_state = st.number_input("Enter Random State (for reproducibility)", value=42)
+                    X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
+                    # Show previews of the training and testing sets
+                    st.write("Training Set Preview:")
+                    st.dataframe(X_train)
+
+                    st.write("Test Set Preview:")
+                    st.dataframe(X_test)
+                
                 else:
-                    st.warning("Please specify a target variable.")
+                    st.error("Please select a valid target variable.")
                 # Call the function to train the model with the specified parameters
                     model = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)  
                     st.success("✅ Model trained successfully!")
             else:
-                st.warning("Please specify a target variable.")
+                st.error("Please upload a dataset first.")
             
 
     with col2:
