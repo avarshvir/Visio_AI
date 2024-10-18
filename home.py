@@ -78,12 +78,14 @@ def home():
 
                     st.write("Test Set Preview:")
                     st.dataframe(X_test)
+
+                    st.success("✅ Model trained successfully!")
                 
                 else:
                     st.error("Please select a valid target variable.")
                 # Call the function to train the model with the specified parameters
                     model = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)  
-                    st.success("✅ Model trained successfully!")
+                   
             else:
                 st.error("Please upload a dataset first.")
             
@@ -94,7 +96,13 @@ def home():
 
     with col3:
         if st.button("📊 Generate Plots"):
-            select_plots()  # Call the function to generate plots
+            if st.session_state.updated_df is not None:  # Ensure the updated dataset is available
+                target_variable = st.selectbox("Select the target variable for plotting:", st.session_state.updated_df.columns)
+                select_plots(st.session_state.updated_df, target_variable) 
+            #select_plots()  # Call the function to generate plots
+
+            else:
+                st.warning("Please upload and process the dataset first.")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
