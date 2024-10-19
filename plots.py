@@ -1,6 +1,7 @@
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
+import io
 
 def select_plots(df, target_variable):
     st.title("Generate Plots")
@@ -10,52 +11,68 @@ def select_plots(df, target_variable):
         st.error(f"Target variable '{target_variable}' not found in the dataset.")
         return
 
-    # Options for the user to select plot type
+    # Allow user to select independent variables (excluding the target variable)
+    independent_vars = st.multiselect("Select independent variables:", [col for col in df.columns if col != target_variable])
+
+    if len(independent_vars) == 0:
+        st.warning("Please select at least one independent variable.")
+        return
+
+    # Plot type selection
     plot_type = st.selectbox(
         "Select the plot type:",
         ["Scatter Plot", "Histogram", "Box Plot", "Correlation Heatmap"]
     )
 
-    if plot_type == "Scatter Plot":
-        # Allow user to select a feature for x-axis
-        feature = st.selectbox("Select a feature for the X-axis:", [col for col in df.columns if col != target_variable])
+    # Download button container
+    plot_download = st.empty()
 
-        # Generate scatter plot
-        if st.button("Generate Scatter Plot"):
+    # Function to generate plots
+    def generate_plots():
+        plots = []  # List to hold the generated plots
+
+        for feature in independent_vars:
             plt.figure(figsize=(10, 6))
-            sns.scatterplot(x=df[feature], y=df[target_variable])
-            plt.title(f"Scatter Plot: {feature} vs {target_variable}")
-            plt.xlabel(feature)
-            plt.ylabel(target_variable)
+
+            if plot_type == "Scatter Plot":
+                sns.scatterplot(x=df[feature], y=df[target_variable])
+                plt.title(f"Scatter Plot: {feature} vs {target_variable}")
+                plt.xlabel(feature)
+                plt.ylabel(target_variable)
+
+            elif plot_type == "Histogram":
+                sns.histplot(df[feature], kde=True)
+                plt.title(f"Histogram of {feature}")
+                plt.xlabel(feature)
+
+            elif plot_type == "Box Plot":
+                sns.boxplot(x=df[feature], y=df[target_variable])
+                plt.title(f"Box Plot: {feature} vs {target_variable}")
+                plt.xlabel(feature)
+                plt.ylabel(target_variable)
+
+            elif plot_type == "Correlation Heatmap":
+                corr_matrix = df[independent_vars + [target_variable]].corr()
+                sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
+                plt.title(f"Correlation Heatmap ({target_variable} vs Independent Variables)")
+
             st.pyplot(plt)
 
-    elif plot_type == "Histogram":
-        # Generate histogram for the target variable
-        if st.button("Generate Histogram"):
-            plt.figure(figsize=(10, 6))
-            sns.histplot(df[target_variable], kde=True)
-            plt.title(f"Histogram of {target_variable}")
-            plt.xlabel(target_variable)
-            st.pyplot(plt)
+            # Save each plot to a list
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            plots.append(buf)
 
-    elif plot_type == "Box Plot":
-        # Allow user to select a feature for x-axis
-        feature = st.selectbox("Select a feature for the X-axis (categorical):", [col for col in df.columns if col != target_variable])
+        # Provide download button for the plots
+        if plots:
+            download_button = plot_download.download_button(
+                label="Download Plot(s)",
+                data=plots[0],  # Single download for now (can extend for multiple)
+                file_name=f"{plot_type}.png",
+                mime="image/png"
+            )
 
-        # Generate box plot
-        if st.button("Generate Box Plot"):
-            plt.figure(figsize=(10, 6))
-            sns.boxplot(x=df[feature], y=df[target_variable])
-            plt.title(f"Box Plot: {target_variable} vs {feature}")
-            plt.xlabel(feature)
-            plt.ylabel(target_variable)
-            st.pyplot(plt)
-
-    elif plot_type == "Correlation Heatmap":
-        # Generate correlation heatmap
-        if st.button("Generate Correlation Heatmap"):
-            plt.figure(figsize=(12, 8))
-            corr_matrix = df.corr()
-            sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
-            plt.title("Correlation Heatmap")
-            st.pyplot(plt)
+    # Generate plots button
+    if st.button("Generate Plots"):
+        generate_plots()

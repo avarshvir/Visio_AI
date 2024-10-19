@@ -107,10 +107,18 @@ def home():
     with col3:
         if st.button("📊 Generate Plots"):
             if st.session_state.updated_df is not None:  # Ensure the updated dataset is available
-                target_variable = st.selectbox("Select the target variable for plotting:", st.session_state.updated_df.columns)
-                select_plots(st.session_state.updated_df, target_variable) 
+                # Use the target variable defined in "Train Your Model"
+                if 'target_variable' in st.session_state:
+                    target_variable = st.session_state.target_variable
+                #target_variable = st.selectbox("Select the target variable for plotting:", st.session_state.updated_df.columns)
+                #select_plots(st.session_state.updated_df, target_variable) 
             #select_plots()  # Call the function to generate plots
 
+                else:
+                    target_variable = st.selectbox("Select the target variable for plotting:", st.session_state.updated_df.columns)
+                
+                select_plots(st.session_state.updated_df, target_variable)  # Call function to generate plots
+            
             else:
                 st.warning("Please upload and process the dataset first.")
 
