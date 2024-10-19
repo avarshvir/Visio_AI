@@ -63,31 +63,41 @@ def home():
             else:
                 st.warning("Please upload a dataset first.")"""
     with col1:
-        if st.button("🔍 Train Your Model"):
-            if st.session_state.updated_df is not None:  # Ensure updated_df is initialized
-            # Get the target variable
-                target_variable = st.selectbox("Select the target variable:", st.session_state.updated_df.columns)
+        if st.session_state.updated_df is not None:
+            with st.expander("🔍 Train Your Model", expanded=False):
+                with st.form(key='train_model_form'):
+            #if st.session_state.updated_df is not None:
+                    target_variable = st.selectbox("Select the target variable:", st.session_state.updated_df.columns, key="target_variable")
 
-                if target_variable:  # Check if target variable is provided
-                    train_size = st.slider("Select Train Size (fraction of data for training)", min_value=0.1, max_value=0.9, value=0.8)
-                    random_state = st.number_input("Enter Random State (for reproducibility)", value=42)
-                    X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
-                    # Show previews of the training and testing sets
-                    st.write("Training Set Preview:")
-                    st.dataframe(X_train)
+                # Train size and random state inputs
+                    train_size = st.slider("Select Train Size (fraction of data for training)", min_value=0.1, max_value=0.9, value=0.8, key="train_size")
+                    random_state = st.number_input("Enter Random State (for reproducibility)", value=42, key="random_state")
 
-                    st.write("Test Set Preview:")
-                    st.dataframe(X_test)
+                # Submit button for the form
+                    submit_button = st.form_submit_button(label="Train Model")
 
-                    st.success("✅ Model trained successfully!")
+                    if submit_button:
+                        if target_variable:
+                            X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
+
+                        # Show previews of the training and testing sets
+                            st.write("Training Set Preview:")
+                            st.dataframe(X_train)
+
+                            st.write("Test Set Preview:")
+                            st.dataframe(X_test)
+
+                            st.success("✅ Model trained successfully!")
+
+        
                 
-                else:
-                    st.error("Please select a valid target variable.")
+                        else:
+                            st.error("Please select a valid target variable.")
                 # Call the function to train the model with the specified parameters
-                    model = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)  
+                    #model = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)  
                    
-            else:
-                st.error("Please upload a dataset first.")
+        else:
+            st.error("Please upload a dataset first.")
             
 
     with col2:
