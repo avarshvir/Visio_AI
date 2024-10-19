@@ -58,6 +58,8 @@ def login():
                 user="root",
                 password="",
                 database="user_db"
+                 
+                
             )
             cursor = conn.cursor()
             query = "SELECT * FROM users WHERE email=%s AND password=%s"
