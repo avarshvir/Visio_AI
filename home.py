@@ -62,7 +62,7 @@ def home():
                     st.warning("Please specify a target variable.")
             else:
                 st.warning("Please upload a dataset first.")"""
-    with col1:
+    """with col1:
         if st.session_state.updated_df is not None:
             with st.expander("🔍 Train Your Model", expanded=False):
                 with st.form(key='train_model_form'):
@@ -78,6 +78,8 @@ def home():
 
                     if submit_button:
                         if target_variable:
+                            # Store target variable in session state
+                            st.session_state['target_variable'] = target_variable
                             X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
 
                         # Show previews of the training and testing sets
@@ -97,6 +99,46 @@ def home():
                     #model = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)  
                    
         else:
+            st.error("Please upload a dataset first.")"""
+    
+    with col1:
+        if st.session_state.updated_df is not None:
+            with st.expander("🔍 Train Your Model", expanded=False):
+                with st.form(key='train_model_form'):
+                    target_variable = st.selectbox("Select the target variable:", st.session_state.updated_df.columns, key="target_variable")
+
+                # Train size and random state inputs
+                    train_size = st.slider("Select Train Size (fraction of data for training)", min_value=0.1, max_value=0.9, value=0.8, key="train_size")
+                    random_state = st.number_input("Enter Random State (for reproducibility)", value=42, key="random_state")
+
+                # Submit button for the form
+                    submit_button = st.form_submit_button(label="Train Model")
+
+                    if submit_button:
+                        if target_variable:
+                        # Train the model and store it in session state
+                            X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
+
+                        # Store the target variable and model info in session state for later use in plot generation
+                            st.session_state['trained_model'] = {
+                                'X_train': X_train,
+                                'X_test': X_test,
+                                'y_train': y_train,
+                                'y_test': y_test,
+                                'target_variable': target_variable
+                            }
+
+                        # Show previews of the training and testing sets
+                            st.write("Training Set Preview:")
+                            st.dataframe(X_train)
+
+                            st.write("Test Set Preview:")
+                            st.dataframe(X_test)
+
+                            st.success("✅ Model trained successfully!")
+                        else:
+                            st.error("Please select a valid target variable.")
+        else:
             st.error("Please upload a dataset first.")
             
 
@@ -104,23 +146,61 @@ def home():
         if st.button("⚙️ Select Algorithms"):
             select_algorithms()  # Call the function to select algorithms
 
-    with col3:
+    """with col3:
         if st.button("📊 Generate Plots"):
             if st.session_state.updated_df is not None:  # Ensure the updated dataset is available
                 # Use the target variable defined in "Train Your Model"
-                if 'target_variable' in st.session_state:
-                    target_variable = st.session_state.target_variable
+                if 'trained_model' in st.session_state:
+                    target_variable = st.session_state['trained_model']['target_variable']
+                    select_plots(st.session_state.updated_df, target_variable)
+                    #target_variable = st.session_state.target_variable
                 #target_variable = st.selectbox("Select the target variable for plotting:", st.session_state.updated_df.columns)
                 #select_plots(st.session_state.updated_df, target_variable) 
             #select_plots()  # Call the function to generate plots
 
                 else:
-                    target_variable = st.selectbox("Select the target variable for plotting:", st.session_state.updated_df.columns)
+                    st.warning("Please train the model first to select a target variable.")
+                    #st.error("Please train the model first to select a target variable.")
+                    #return
+                    #target_variable = st.selectbox("Select the target variable for plotting:", st.session_state.updated_df.columns)
                 
-                select_plots(st.session_state.updated_df, target_variable)  # Call function to generate plots
+                #select_plots(st.session_state.updated_df, target_variable)  # Call function to generate plots
             
+                # Allow the user to select independent variables
+                
             else:
-                st.warning("Please upload and process the dataset first.")
+                st.warning("Please upload and process the dataset first.")"""
+    
+    with col3:
+        if 'trained_model' in st.session_state:
+            target_variable = st.session_state['trained_model']['target_variable']
+
+            with st.expander("📊 Select Plot Type", expanded=True):
+                if st.button("Generate Plots"):
+                    select_plots(st.session_state.updated_df, target_variable)
+        
+        else:
+            st.warning("Please train the model first to select a target variable.")
+        # Independent variable selection
+
+            """with st.expander("📊 Select Independent Variables", expanded=True):
+                independent_variables = st.multiselect(
+                    "Select independent variables for plotting:",
+                    options=[col for col in st.session_state.updated_df.columns if col != target_variable],
+                    key="independent_variables"
+                )
+
+        # Ensure independent variables are selected before allowing plot generation
+            if independent_variables:
+                if st.button("Generate Plots"):
+                # Call the plotting function with the selected independent variables
+                    #select_plots(st.session_state.updated_df, target_variable, independent_variables)
+                    select_plots(st.session_state.updated_df, target_variable)
+            else:
+                st.warning("Please select independent variables first.")
+        else:
+            st.warning("Please train the model first to select a target variable.")"""
+
 
     st.markdown('</div>', unsafe_allow_html=True)
 
