@@ -6,6 +6,7 @@ from train_your_model import train_your_model
 from algorithms import select_algorithms
 from plots import select_plots
 
+
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dynamic Data Analysis & Visualization Dashboard", layout="wide")
 
