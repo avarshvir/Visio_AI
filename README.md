@@ -15,7 +15,7 @@
   
 ## Technology Stack
 
-- **Frontend**: Streamlit ( for interactive UI)
+- **Frontend**: Streamlit (for interactive UI)
 - **Backend**: Python, Flask (for API integration)
 - **Machine Learning**: scikit-learn, pandas, numpy
 - **Data Visualization**: Matplotlib, Seaborn
