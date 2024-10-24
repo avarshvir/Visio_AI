@@ -4,8 +4,8 @@ from home import home  # Import the home page from home.py
 from notepad import notepad_1
 
 def main():
-    st.title("Welcome to Project DAVP")
-    st.markdown("---")
+    #st.title("Welcome to Project DAVP")
+    #st.markdown("---")
     # Initialize session state for login and email tracking if not present
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False

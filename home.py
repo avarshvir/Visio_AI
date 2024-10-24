@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from train_your_model import train_your_model
 from algorithms import select_algorithms
 from plots import select_plots
-
+#from word_cloud import generate_word_cloud
+from word_cloud import generate_word_cloud  # Import the word cloud function
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dynamic Data Analysis & Visualization Dashboard", layout="wide")
@@ -122,6 +123,13 @@ def home():
         if st.button("🔧 Tool 1: Example Tool"):
             st.session_state.current_page = "notepad_1"  # Set the current page to 'notepad'
             st.rerun()
+        if st.button("🔧 Tool 2: Word Cloud"):
+            st.session_state.current_page = "word_cloud"  # Set to word cloud page
+            st.rerun()
+        #if st.session_state.current_page == "word_cloud":
+         #   generate_word_cloud()
+    if st.session_state.get('current_page') == "word_cloud":
+        generate_word_cloud()
 
 
     # Column 2: Dataset Upload and Handling Section (Center)
@@ -221,6 +229,8 @@ def home():
                 sns.pairplot(pairplot_data)
                 plt.title("Pair Plot of Updated Dataset")
                 st.pyplot(plt)
+
+              
 
 # Run the home function
 if __name__ == "__main__":
