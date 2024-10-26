@@ -7,6 +7,7 @@ from algorithms import select_algorithms
 from plots import select_plots
 #from word_cloud import generate_word_cloud
 from word_cloud import generate_word_cloud  # Import the word cloud function
+from notepad_lite import notepad  # Import the notepad function
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dynamic Data Analysis & Visualization Dashboard", layout="wide")
@@ -120,6 +121,9 @@ def home():
     
     with col1:
         st.markdown('<div class="section-title">🛠️ Tools</div>', unsafe_allow_html=True)
+        #if st.button("🔧 Tool 1: Example Tool"):
+            #st.session_state.current_page = "notepad_1"  # Set the current page to 'notepad'
+            #st.rerun()
         if st.button("🔧 Tool 1: Example Tool"):
             st.session_state.current_page = "notepad_1"  # Set the current page to 'notepad'
             st.rerun()
@@ -128,7 +132,10 @@ def home():
             st.rerun()
         #if st.session_state.current_page == "word_cloud":
          #   generate_word_cloud()
-    if st.session_state.get('current_page') == "word_cloud":
+    
+    if st.session_state.get('current_page') == "notepad_1":
+        notepad()
+    elif st.session_state.get('current_page') == "word_cloud":
         generate_word_cloud()
 
 
