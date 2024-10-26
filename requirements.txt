@@ -3,3 +3,4 @@ seaborn==0.13.2
 scikit-learn==1.5.1
 wordcloud==1.9.3
 PyPDF2==3.0.1
+docx2pdf==0.1.8
