@@ -127,11 +127,11 @@ def home():
         #if st.button("🔧 Tool 1: Example Tool"):
          #   st.session_state.current_page = "notepad_1"  # Set the current page to 'notepad'
           #  st.rerun()
-        if st.button("🔧"):
+        if st.button("📝NoteLite"):
            # notepad()  # Open the notepad overlay
             st.session_state.current_page = "notepad_1"
             st.rerun()
-        if st.button("🔧Word Cloud"):
+        if st.button("😶‍🌫️Word Cloud"):
             st.session_state.current_page = "word_cloud"  # Set to word cloud page
             st.rerun()
         #if st.session_state.current_page == "word_cloud":
