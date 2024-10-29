@@ -1,3 +1,4 @@
+#home.py
 import streamlit as st
 import pandas as pd
 import seaborn as sns
@@ -72,13 +73,17 @@ def home():
                         # Train the model and store it in session state
                             X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
 
+                            # Determine if the target variable is numerical or categorical
+                            target_type = 'numerical' if pd.api.types.is_numeric_dtype(st.session_state.updated_df[target_variable]) else 'categorical'
+
                         # Store the target variable and model info in session state for later use in plot generation
                             st.session_state['trained_model'] = {
                                 'X_train': X_train,
                                 'X_test': X_test,
                                 'y_train': y_train,
                                 'y_test': y_test,
-                                'target_variable': target_variable
+                                'target_variable': target_variable,
+                                'target_type': target_type
                             }
 
                         # Show previews of the training and testing sets
@@ -97,9 +102,36 @@ def home():
 
     with col2:
         if st.button("⚙️ Select Algorithms"):
-            select_algorithms()  # Call the function to select algorithms
+            #select_algorithms()  # Call the function to select algorithms
+            target_type = st.session_state['trained_model']['target_type'] if 'trained_model' in st.session_state else None
+            select_algorithms(target_type)
+         # Display predictions in an expander if predictions are available
+        if 'predictions' in st.session_state:
+            with st.expander("🔍 View Predictions on Test Data"):
+                st.write("Predictions for the Test Data:")
 
-    
+            # Prepare a DataFrame to show actual vs predicted values
+                predictions_df = pd.DataFrame({
+                    "Actual": st.session_state['trained_model']['y_test'],
+                    "Predicted": st.session_state['predictions']
+                })
+            
+            # Display the predictions DataFrame
+                st.dataframe(predictions_df)
+
+            # Optionally, add a download button for predictions
+                csv = predictions_df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="📥 Download Predictions",
+                    data=csv,
+                    file_name='predictions.csv',
+                    mime='text/csv'
+                )
+
+    # Optional: any additional model evaluation metrics
+        if 'evaluation_metrics' in st.session_state:
+            st.write("Model Evaluation Metrics:")
+            st.json(st.session_state['evaluation_metrics'])
     with col3:
         if 'trained_model' in st.session_state:
             target_variable = st.session_state['trained_model']['target_variable']

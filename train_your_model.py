@@ -1,5 +1,7 @@
 import streamlit as st
+import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 def train_your_model(df, target_variable, train_size, random_state):
     # Split the dataset into features (X) and the target variable (y)
