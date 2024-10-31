@@ -86,29 +86,52 @@ def home():
                                 'target_type': target_type
                             }
 
-                        # Show previews of the training and testing sets
-                            st.write("Training Set Preview:")
-                            st.dataframe(X_train)
-
-                            st.write("Test Set Preview:")
-                            st.dataframe(X_test)
-
                             st.success("✅ Model trained successfully!")
-                        else:
-                            st.error("Please select a valid target variable.")
-        else:
-            st.error("Please upload a dataset first.")
+
+                        
+
+        if 'trained_model' in st.session_state:
+            target_variable = st.session_state['trained_model']['target_variable']
+
+            
+            train_preview = st.session_state['trained_model']['X_train'].copy()
+            train_preview[target_variable] = st.session_state['trained_model']['y_train']
+            st.write("Training Set Preview:")
+            st.dataframe(train_preview)
+
+            
+            test_preview = st.session_state['trained_model']['X_test'].copy()
+            test_preview[target_variable] = st.session_state['trained_model']['y_test']
+            st.write("Test Set Preview:")
+            st.dataframe(test_preview)
+
+                        # Show previews of the training and testing sets
+                           # st.write("Training Set Preview:")
+                            #train_preview = X_train.copy()
+                            #train_preview[target_variable] = y_train
+                            #st.dataframe(train_preview)
+
+                            #st.write("Test Set Preview:")
+                            #test_preview = X_test.copy()
+                            #test_preview[target_variable] = y_test
+                            #st.dataframe(test_preview)
+
+                            #st.success("✅ Model trained successfully!")
+                        #else:
+                         #   st.error("Please select a valid target variable.")
+        #else:
+         #   st.error("Please upload a dataset first.")
             
 
     with col2:
         if st.button("⚙️ Select Algorithms"):
             #select_algorithms()  # Call the function to select algorithms
-            target_type = st.session_state['trained_model']['target_type'] if 'trained_model' in st.session_state else None
+            target_type = st.session_state['trained_model']['target_type']
             select_algorithms(target_type)
          # Display predictions in an expander if predictions are available
         if 'predictions' in st.session_state:
-            with st.expander("🔍 View Predictions on Test Data"):
-                st.write("Predictions for the Test Data:")
+            with st.expander("🔍 View Predictions on Test Data", expanded=True):
+                #st.write("Predictions for the Test Data:")
 
             # Prepare a DataFrame to show actual vs predicted values
                 predictions_df = pd.DataFrame({
@@ -132,6 +155,7 @@ def home():
         if 'evaluation_metrics' in st.session_state:
             st.write("Model Evaluation Metrics:")
             st.json(st.session_state['evaluation_metrics'])
+            
     with col3:
         if 'trained_model' in st.session_state:
             target_variable = st.session_state['trained_model']['target_variable']
