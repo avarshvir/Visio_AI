@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import seaborn as sns
+import io
 import matplotlib.pyplot as plt
 from train_your_model import train_your_model
 from algorithms import select_algorithms
@@ -52,7 +53,7 @@ def home():
     st.markdown('<div class="container">', unsafe_allow_html=True)
 
     # Button row for navigating to model training, algorithm selection, and plot generation
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     
     
     with col1:
@@ -119,8 +120,8 @@ def home():
                             #st.success("✅ Model trained successfully!")
                         #else:
                          #   st.error("Please select a valid target variable.")
-        #else:
-         #   st.error("Please upload a dataset first.")
+        else:
+           st.info("Please upload a dataset first.")
             
 
     with col2:
@@ -165,10 +166,56 @@ def home():
                     select_plots(st.session_state.updated_df, target_variable)
         
         else:
-            st.warning("Please train the model first to select a target variable.")
+            st.info("Please train the model")
         # Independent variable selection
 
+
+    with col4:
+        with st.expander("Analysis"):
+            if st.session_state.updated_df is not None:
+            # Create tabs for different analyses
+                tab1, tab2 = st.tabs(["Statistical Summary", "Dataset Info"])
             
+                with tab1:
+                    st.subheader("Statistical Summary (describe)")
+                    numeric_df = st.session_state.updated_df.select_dtypes(include=['float64', 'int64'])
+                    if not numeric_df.empty:
+                    # Display statistical summary
+                        st.dataframe(numeric_df.describe())
+                    else:
+                        st.warning("No numerical columns found in the dataset")
+
+                    if st.checkbox("Show additional statistics"):
+                        st.write("Skewness:")
+                        st.dataframe(numeric_df.skew())
+                        st.write("Kurtosis:")
+                        st.dataframe(numeric_df.kurtosis())
+
+                with tab2:
+                    st.subheader("Dataset Information (info)")
+                # Get DataFrame info
+                    buffer = io.StringIO()
+                    st.session_state.updated_df.info(buf=buffer)
+                    info_str = buffer.getvalue()
+                
+                # Display formatted info
+                    st.text(info_str)
+
+                    st.write("Quick Facts:")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("Total Rows", st.session_state.updated_df.shape[0])
+                    with col2:
+                        st.metric("Total Columns", st.session_state.updated_df.shape[1])
+                    with col3:
+                        st.metric("Missing Values", st.session_state.updated_df.isna().sum().sum())
+                
+                # Display column types
+                    st.write("Column Data Types:")
+                    dtypes_df = pd.DataFrame(st.session_state.updated_df.dtypes, columns=['Data Type'])
+                    st.dataframe(dtypes_df)
+            else:
+                st.info("Please upload a dataset first.") 
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -183,7 +230,7 @@ def home():
         #if st.button("🔧 Tool 1: Example Tool"):
          #   st.session_state.current_page = "notepad_1"  # Set the current page to 'notepad'
           #  st.rerun()
-        if st.button("📝NoteLite"):
+        if st.button("📝Note -.- Lite"):
            # notepad()  # Open the notepad overlay
             st.session_state.current_page = "notepad_1"
             st.rerun()

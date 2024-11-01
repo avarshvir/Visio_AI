@@ -1,3 +1,5 @@
+# algorithms.py
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -60,6 +62,7 @@ def select_algorithms(target_type=None):
                 st.session_state['evaluation_metrics'] = metrics
 
             st.success(f"✅ {selected_algorithm} trained successfully!")
+            # Immediately display predictions in expander pop-up
             display_predictions(predictions, y_test, metrics, target_type, target_variable)
 
         except Exception as e:
