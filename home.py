@@ -136,7 +136,9 @@ def home():
                         #else:
                          #   st.error("Please select a valid target variable.")
         else:
-           st.info("Please upload a dataset first.")
+           #with st.expander("Data Operations"):
+            st.info("Please upload a dataset first")
+
             
 
     with col2:
@@ -225,7 +227,7 @@ def home():
 
         
         else:
-            with st.expander("Select Plot Type"):
+            with st.expander("📊Select Plot Type"):
                 st.info("Please train the model")
         
 
