@@ -1,5 +1,4 @@
 # algorithms.py
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -8,16 +7,17 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVR, SVC
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, accuracy_score, precision_score, recall_score
 
 def select_algorithms(target_type=None):
     st.subheader("🧩 Select Algorithms")
 
-    # Check if model is trained
+    # Ensure that model data is available in session state
     if 'trained_model' not in st.session_state:
-        st.error("❌ Please train your model first before selecting algorithms!")
+        st.error("❌ Please split the dataset first in Data Operations!")
         return None
-    
-    # Get model data and target info from session state
+
+    # Retrieve split data and target info
     target_type = st.session_state['trained_model']['target_type']
     target_variable = st.session_state['trained_model']['target_variable']
     X_train = st.session_state['trained_model']['X_train']
@@ -45,28 +45,31 @@ def select_algorithms(target_type=None):
 
     # Algorithm selection dropdown
     selected_algorithm = st.selectbox("Choose an algorithm", list(algorithms.keys()), key="algorithm_selectbox")
-
-    # Button to train selected algorithm
+    
+    # Train button
     if st.button("Train Selected Algorithm"):
         try:
             model = algorithms[selected_algorithm]()
             with st.spinner(f"Training {selected_algorithm}..."):
-                # Fit the model and predict
                 model.fit(X_train, y_train)
-                predictions = model.predict(X_test)
-
-                # Store predictions and evaluation metrics in session state
-                st.session_state['predictions'] = predictions
-                st.session_state['current_model'] = model
-                metrics = calculate_metrics(target_type, y_test, predictions)
-                st.session_state['evaluation_metrics'] = metrics
-
-            st.success(f"✅ {selected_algorithm} trained successfully!")
-            # Immediately display predictions in expander pop-up
-            display_predictions(predictions, y_test, metrics, target_type, target_variable)
-
+                st.session_state['current_model'] = model  # Store trained model
+                st.success(f"✅ {selected_algorithm} trained successfully!")
         except Exception as e:
             st.error(f"❌ Error during training: {str(e)}")
+
+    # Test button
+    if st.button("Test Selected Algorithm"):
+        try:
+            if 'current_model' in st.session_state:
+                model = st.session_state['current_model']
+                predictions = model.predict(X_test)
+                metrics = calculate_metrics(target_type, y_test, predictions)
+                st.session_state['evaluation_metrics'] = metrics
+                display_predictions(predictions, y_test, metrics, target_type, target_variable)
+            else:
+                st.error("❌ No model has been trained yet. Please train a model first.")
+        except Exception as e:
+            st.error(f"❌ Error during testing: {str(e)}")
 
 def display_predictions(predictions, y_test, metrics, target_type, target_variable):
     with st.expander("📊 View Predictions and Model Performance", expanded=True):
@@ -92,7 +95,6 @@ def display_predictions(predictions, y_test, metrics, target_type, target_variab
 
 def calculate_metrics(target_type, y_test, predictions):
     if target_type == 'numerical':
-        from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
         mse = mean_squared_error(y_test, predictions)
         return {
             "Mean Squared Error": mse,
@@ -101,7 +103,6 @@ def calculate_metrics(target_type, y_test, predictions):
             "R² Score": r2_score(y_test, predictions)
         }
     else:
-        from sklearn.metrics import accuracy_score, precision_score, recall_score
         return {
             "Accuracy": accuracy_score(y_test, predictions),
             "Precision": precision_score(y_test, predictions, average='weighted'),

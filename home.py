@@ -58,7 +58,7 @@ def home():
     
     with col1:
         if st.session_state.updated_df is not None:
-            with st.expander("🔍 Train Your Model", expanded=False):
+            with st.expander("🔍 Data Operations", expanded=False):
                 with st.form(key='train_model_form'):
                     target_variable = st.selectbox("Select the target variable:", st.session_state.updated_df.columns, key="target_variable")
 
@@ -67,27 +67,27 @@ def home():
                     random_state = st.number_input("Enter Random State (for reproducibility)", value=42, key="random_state")
 
                 # Submit button for the form
-                    submit_button = st.form_submit_button(label="Train Model")
+                    submit_button = st.form_submit_button(label="Split DataSet")
 
-                    if submit_button:
-                        if target_variable:
+                    if submit_button and target_variable:
+                        #->if target_variable:
                         # Train the model and store it in session state
-                            X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
+                        X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
 
                             # Determine if the target variable is numerical or categorical
-                            target_type = 'numerical' if pd.api.types.is_numeric_dtype(st.session_state.updated_df[target_variable]) else 'categorical'
+                        target_type = 'numerical' if pd.api.types.is_numeric_dtype(st.session_state.updated_df[target_variable]) else 'categorical'
 
                         # Store the target variable and model info in session state for later use in plot generation
-                            st.session_state['trained_model'] = {
-                                'X_train': X_train,
-                                'X_test': X_test,
-                                'y_train': y_train,
-                                'y_test': y_test,
-                                'target_variable': target_variable,
-                                'target_type': target_type
-                            }
+                        st.session_state['trained_model'] = {
+                            'X_train': X_train,
+                            'X_test': X_test,
+                            'y_train': y_train,
+                            'y_test': y_test,
+                            'target_variable': target_variable,
+                            'target_type': target_type
+                        }
 
-                            st.success("✅ Model trained successfully!")
+                        st.success("✅ Data Split successfully!")
 
                         
 
@@ -162,11 +162,59 @@ def home():
             target_variable = st.session_state['trained_model']['target_variable']
 
             with st.expander("📊 Select Plot Type", expanded=True):
-                if st.button("Generate Plots"):
-                    select_plots(st.session_state.updated_df, target_variable)
+                col1t, col2t = st.columns([1, 1])
+    
+                with col1t:
+                    if st.button("Insight Plots"):
+                        select_plots(st.session_state.updated_df, target_variable)
+
+                with col2t:
+                    vizu = st.selectbox("Select Visualization:", ["Scatter Plot", "Bar Plot", "Pie Chart", "Histogram"])
+        
+        # Conditional controls based on plot type
+                    if vizu in ["Scatter Plot", "Bar Plot"]: 
+                        x_axis = st.selectbox("Select X-axis:", st.session_state.updated_df.columns)
+                        y_axis = st.selectbox("Select Y-axis:", st.session_state.updated_df.columns)
+            
+                        if st.button("Generate Plot"):
+                            plt.figure(figsize=(10, 6))  # Set figure size
+            
+                        if vizu == "Scatter Plot":
+                            sns.scatterplot(data=st.session_state.updated_df, x=x_axis, y=y_axis)
+                            plt.title(f"Scatter Plot of {y_axis} vs {x_axis}")
+                
+                        elif vizu == "Bar Plot":
+                                    sns.barplot(data=st.session_state.updated_df, x=x_axis, y=y_axis)
+                                    plt.title(f"Bar Plot of {y_axis} vs {x_axis}")
+                
+                        st.pyplot(plt)  # Display the plot
+
+                    elif vizu == "Pie Chart":
+                        pie_column = st.selectbox("Select Column for Pie Chart:", st.session_state.updated_df.columns)
+            
+                        if st.button("Generate Pie Chart"):
+                            plt.figure(figsize=(8, 8))
+                            st.session_state.updated_df[pie_column].value_counts().plot.pie(autopct='%1.1f%%', startangle=90)
+                            plt.title(f"Pie Chart of {pie_column}")
+                            st.pyplot(plt)
+        
+                    elif vizu == "Histogram":
+                        hist_column = st.selectbox("Select Column for Histogram:", st.session_state.updated_df.columns)
+            
+                        if st.button("Generate Histogram"):
+                            plt.figure(figsize=(10, 6))
+                            sns.histplot(st.session_state.updated_df[hist_column], bins=30, kde=True)
+                            plt.title(f"Histogram of {hist_column}")
+                            st.pyplot(plt)
+
+
         
         else:
-            st.info("Please train the model")
+            with st.expander("Select Plot Type"):
+                st.info("Please train the model")
+        
+
+            #st.info("Please train the model")
         # Independent variable selection
 
 
