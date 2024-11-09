@@ -10,6 +10,8 @@ from plots import select_plots
 #from word_cloud import generate_word_cloud
 from word_cloud import generate_word_cloud  # Import the word cloud function
 from notepad_lite import notepad  # Import the notepad function
+from sklearn.preprocessing import LabelEncoder
+from tool_calculator import calculator
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dynamic Data Analysis & Visualization Dashboard", layout="wide")
@@ -72,10 +74,17 @@ def home():
                     if submit_button and target_variable:
                         #->if target_variable:
                         # Train the model and store it in session state
-                        X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
-
+                        df_processed = st.session_state.updated_df.copy()
+                        # Encode categorical variables
+                        for col in df_processed.select_dtypes(include=['object']).columns:
+                            le = LabelEncoder()
+                            df_processed[col] = le.fit_transform(df_processed[col].astype(str))
+                        #->X_train, X_test, y_train, y_test = train_your_model(st.session_state.updated_df, target_variable, train_size, random_state)
+                        X_train, X_test, y_train, y_test = train_your_model(df_processed, target_variable, train_size, random_state)
                             # Determine if the target variable is numerical or categorical
-                        target_type = 'numerical' if pd.api.types.is_numeric_dtype(st.session_state.updated_df[target_variable]) else 'categorical'
+                        #->target_type = 'numerical' if pd.api.types.is_numeric_dtype(st.session_state.updated_df[target_variable]) else 'categorical'
+                        target_type = 'numerical' if pd.api.types.is_numeric_dtype(df_processed[target_variable]) else 'categorical'
+
 
                         # Store the target variable and model info in session state for later use in plot generation
                         st.session_state['trained_model'] = {
@@ -84,7 +93,8 @@ def home():
                             'y_train': y_train,
                             'y_test': y_test,
                             'target_variable': target_variable,
-                            'target_type': target_type
+                            'target_type': target_type,
+                            'label_encoders':{} # Store label encoders for decoding predictions
                         }
 
                         st.success("✅ Data Split successfully!")
@@ -278,12 +288,15 @@ def home():
         #if st.button("🔧 Tool 1: Example Tool"):
          #   st.session_state.current_page = "notepad_1"  # Set the current page to 'notepad'
           #  st.rerun()
-        if st.button("📝Note -.- Lite"):
+        if st.button("📝Note -- Lite"):
            # notepad()  # Open the notepad overlay
             st.session_state.current_page = "notepad_1"
             st.rerun()
-        if st.button("😶‍🌫️Word Cloud"):
+        if st.button("😶‍🌫️WordCloud"):
             st.session_state.current_page = "word_cloud"  # Set to word cloud page
+            st.rerun()
+        if st.button("🧮 Calculator"):
+            st.session_state.current_page = "calculator"  # Set to calculator page
             st.rerun()
         #if st.session_state.current_page == "word_cloud":
          #   generate_word_cloud()
@@ -293,6 +306,8 @@ def home():
         notepad()
     elif st.session_state.get('current_page') == "word_cloud":
         generate_word_cloud()
+    elif st.session_state.get('current_page') == "calculator":
+        calculator()
 
 
     # Column 2: Dataset Upload and Handling Section (Center)

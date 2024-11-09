@@ -9,6 +9,7 @@ from sklearn.svm import SVR, SVC
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, accuracy_score, precision_score, recall_score
 
+
 def select_algorithms(target_type=None):
     st.subheader("🧩 Select Algorithms")
 
@@ -52,7 +53,11 @@ def select_algorithms(target_type=None):
             model = algorithms[selected_algorithm]()
             with st.spinner(f"Training {selected_algorithm}..."):
                 model.fit(X_train, y_train)
-                st.session_state['current_model'] = model  # Store trained model
+                #st.session_state['current_model'] = model  # Store trained model
+                st.session_state['current_model'] = {
+                    'model': model,
+                    'algorithm_name': selected_algorithm
+                }
                 st.success(f"✅ {selected_algorithm} trained successfully!")
         except Exception as e:
             st.error(f"❌ Error during training: {str(e)}")
@@ -61,9 +66,16 @@ def select_algorithms(target_type=None):
     if st.button("Test Selected Algorithm"):
         try:
             if 'current_model' in st.session_state:
-                model = st.session_state['current_model']
+                #->model = st.session_state['current_model']
+                model = st.session_state['current_model']['model']
+                algorithm_name = st.session_state['current_model']['algorithm_name']
+
                 predictions = model.predict(X_test)
                 metrics = calculate_metrics(target_type, y_test, predictions)
+
+                #->st.session_state['evaluation_metrics'] = metrics
+                # Store predictions and metrics
+                st.session_state['predictions'] = predictions
                 st.session_state['evaluation_metrics'] = metrics
                 display_predictions(predictions, y_test, metrics, target_type, target_variable)
             else:
