@@ -16,9 +16,14 @@ from tool_calculator import calculator
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dynamic Data Analysis & Visualization Dashboard", layout="wide")
 
+
+
 # Home function for displaying the dashboard
 def home():
     # Use session state to store the DataFrame
+    
+    
+
     if 'updated_df' not in st.session_state:
         st.session_state.updated_df = None  # Initialize updated_df in session state
 
