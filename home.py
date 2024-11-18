@@ -12,6 +12,8 @@ from word_cloud import generate_word_cloud  # Import the word cloud function
 from notepad_lite import notepad  # Import the notepad function
 from sklearn.preprocessing import LabelEncoder
 from tool_calculator import calculator
+from viz_ai import viz_ai_img
+from notebook_app import note_edit
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dynamic Data Analysis & Visualization Dashboard", layout="wide")
@@ -143,9 +145,12 @@ def home():
 
     with col2:
         if st.button("⚙️ Select Algorithms"):
+            if 'trained_model' in st.session_state:
             #select_algorithms()  # Call the function to select algorithms
-            target_type = st.session_state['trained_model']['target_type']
-            select_algorithms(target_type)
+                target_type = st.session_state['trained_model']['target_type']
+                select_algorithms(target_type)
+            else:
+                st.error("❌ Please split the dataset first in Data Operations!")
          # Display predictions in an expander if predictions are available
         if 'predictions' in st.session_state:
             with st.expander("🔍 View Predictions on Test Data", expanded=True):
@@ -302,9 +307,14 @@ def home():
         if st.button("😶‍🌫️WordCloud"):
             st.session_state.current_page = "word_cloud"  # Set to word cloud page
             st.rerun()
+        if st.button("🤖Viz AI"):
+            st.session_state.current_page = "viz_ai_img"
+            st.rerun()
         if st.button("🧮 Calculator"):
             st.session_state.current_page = "calculator"  # Set to calculator page
             st.rerun()
+        if st.button("Viz Editor"):
+            st.session_state.current_page = "note_edit"
         #if st.session_state.current_page == "word_cloud":
          #   generate_word_cloud()
     
@@ -313,8 +323,16 @@ def home():
         notepad()
     elif st.session_state.get('current_page') == "word_cloud":
         generate_word_cloud()
+    elif st.session_state.get('current_page') == 'viz_ai_img':
+        #st.header("🤖Viz AI")
+        viz_ai_img()
+        
     elif st.session_state.get('current_page') == "calculator":
         calculator()
+
+    elif st.session_state.get('current_page') == "note_edit":
+        note_edit()
+        
 
 
     # Column 2: Dataset Upload and Handling Section (Center)
